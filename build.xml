@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="play-statsd" default="build" basedir=".">
+<project name="statsd" default="build" basedir=".">
 
     <target name="check" unless="play.path">
         <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
@@ -14,6 +14,9 @@
         <fileset dir="${play.path}/framework">
             <include name="*.jar"/>
         </fileset>
+    	  <fileset dir="${play.path}/modules/scala-0.9.1/lib">
+    	      <include name="*.jar"/>
+    	  </fileset>
         <fileset dir="lib">
             <include name="*.jar"/>
         </fileset>
@@ -29,10 +32,11 @@
                 <include name="**/play.static"/>
             </fileset>
         </copy>
-        <jar destfile="lib/play-play-statsd.jar" basedir="tmp/classes">
+    	
+        <jar destfile="lib/play-statsd.jar" basedir="tmp/classes">
             <manifest>
                 <section name="Play-module">
-                    <attribute name="Specification-Title" value="play-statsd"/>
+                    <attribute name="Specification-Title" value="statsd"/>
                 </section>
             </manifest>
         </jar>
@@ -40,10 +44,18 @@
     </target>
 
     <target name="compile" depends="check">
+    	
+        <taskdef resource="scala/tools/ant/antlib.xml">
+    	      <classpath refid="project.classpath" />
+    	  </taskdef>
         <mkdir dir="tmp/classes" />
         <javac srcdir="src" destdir="tmp/classes" target="1.5" debug="true">
             <classpath refid="project.classpath" />
         </javac>
+    	
+        <scalac srcdir="src" destdir="tmp/classes" force="changed" unchecked="true">
+            <classpath refid="project.classpath" />
+    	  </scalac>
     </target>
 
 </project>

@@ -1,4 +1,4 @@
-self: play -> play-statsd 0.1
+self: play -> statsd 0.1
 
 require:
     - play
