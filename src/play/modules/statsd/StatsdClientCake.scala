@@ -70,7 +70,7 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
       // If there is any error configuring the send function, log a warning
       // but don't throw an error. Use a noop function for all sends.
       case t: Throwable =>
-        Logger.warn(t, "Send will be NOOP because of configuraiton problem:")
+        Logger.warn(t, "Send will be NOOP because of configuration problem:")
         noopSend _
     }
   }
