@@ -1,14 +1,13 @@
 h1. {statsd}
 
-p(note). Write your module documentation in this file, possibly linking to other Textile files, and delete these notes when you are finished.
-
-p(note). Start with a clear statement of what the module is and what it is for. Link to any third-party libraries that the module is based on.
-
-p(note). Briefly describe why you might want to use this module in a Play application.
+This is a dirt-simple statsd module for Play! Framework. It pulls in a configuration from conf/application.conf and provides a singleton object
+Statsd with methods for counter and timing calls to statsd.
 
 h2. Sample application
 
-p(note). Your module should contain a sample app in the @sample@ directory that demonstrates the module. Describe how to run the demo here.
+There is a very simple sample application. Navigate to sample/sample-statsd/ and play run it. It should work.
+
+With current settings, it should give a warning about statsd not being configured. Add the properties described below to conf/application.conf.
 
 h2. Getting started
 
