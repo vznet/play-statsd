@@ -1,4 +1,4 @@
-h1. {module name}
+h1. {statsd}
 
 p(note). Write your module documentation in this file, possibly linking to other Textile files, and delete these notes when you are finished.
 
