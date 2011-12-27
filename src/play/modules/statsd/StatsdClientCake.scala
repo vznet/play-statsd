@@ -6,6 +6,9 @@ import play.Logger
 
 private[statsd] trait StatsdClientCake {
 
+  // The property name for whether or not the statsd sending should be enabled.
+  private val StatsdEnabledProperty = "stats.enabled"
+
   // The property name for the statsd port.
   private val PortProperty = "statsd.port"
 
@@ -22,23 +25,32 @@ private[statsd] trait StatsdClientCake {
    * Expose a {@code send} function to the client. Is configured with the
    */
   protected lazy val send: Function1[String, Unit] = {
+    import Sugar._
+
     try {
+      // Check if Statsd sending is enabled.
+      val enabled = booleanConfig(StatsdEnabledProperty)
+      if (enabled) {
+        // Initialize the socket, host, and port to be used to send the data.
+        val socket = new DatagramSocket
+        val hostname = config(HostnameProperty)
+        val host = InetAddress.getByName(hostname)
+        val port = intConfig(PortProperty)
 
-      // Initialize the socket, host, and port to be used to send the data.
-      val socket = new DatagramSocket
-      val hostname = play.configuration(HostnameProperty, "localhost")
-      val host = InetAddress.getByName(hostname)
-      val port = play.configuration(PortProperty).toInt
-
-      // Return the real send function, partially applied with the
-      // socket, host, and port so the client only has to call "send(stat)".
-      socketSend(socket, host, port) _
+        // Return the real send function, partially applied with the
+        // socket, host, and port so the client only has to call "send(stat)".
+        socketSend(socket, host, port) _
+      } else {
+        Logger.warn("Send will be NOOP because %s is not enabled".format(
+          StatsdEnabledProperty))
+          noopSend _
+      }
 
     } catch {
       // If there is any error configuring the send function, log a warning
       // but don't throw an error. Use a noop function for all sends.
       case t: Throwable =>
-        Logger.warn(t, "Could not configure statsd client. Send will be noop.")
+        Logger.warn(t, "Send will be NOOP because of configuraiton problem:")
         noopSend _
     }
   }
