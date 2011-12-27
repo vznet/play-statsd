@@ -5,7 +5,7 @@ package play.modules.statsd
  */
 object Sugar {
   private[statsd] def config(name: String): String = {
-    checkNotNull(play.configuration("name"))
+    checkNotNull(play.configuration(name), "[%s] prop is null".format(name))
   }
 
   private[statsd] def booleanConfig(name: String): Boolean = {

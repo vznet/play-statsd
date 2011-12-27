@@ -1,30 +1,55 @@
-h1. {statsd}
+h1. statsd
 
-This is a dirt-simple statsd module for Play! Framework. It pulls in a configuration from conf/application.conf and provides a singleton object
-Statsd with methods for counter and timing calls to statsd.
+This is a simple statsd module for Play! Framework. It pulls in a configuration from conf/application.conf and provides a singleton object Statsd with methods for counter and timing calls to statsd.
 
 h2. Sample application
 
-There is a very simple sample application. Navigate to sample/sample-statsd/ and play run it. It should work.
+There is a barebones sample application in sample/sample-statsd/. To run it:
 
-With current settings, it should give a warning about statsd not being configured. Add the properties described below to conf/application.conf.
+@$ play build-module # (you just hit enter at the prompt)@
+@$ cd sample/sample-statsd@
+@$ play run@
+
+It should work.
+
+With current settings, it should give a warning about statsd not being configured. Add the properties described below to @conf/application.conf@ to test it further.
 
 h2. Getting started
 
-p(note). Describe any installation that is required, beyond adding and resolving the module dependency.
+To install:
+
+@$ cd path/to/play/modules@
+@$ git clone git@github.com:dyross/play-statsd.git@
+@$ cd play-statsd@
+@$ pwd # (copy the ouput)@
+@$ play build-module@
+@$ cd path/to/your/app@
+@$ vi conf/application.conf # (and add following line...)@
+@module.statsd=${play.path}/modules/statsd@
 
 h2. Configuration
 
-p(note). List any configuration options that the module uses, with an @h3.@ heading for each one.
+The following are configuration flags that belong in @conf/application.conf@:
+
+* @statsd.enabled@: Should be @true@ to use this module. Can be @false@ for testing.
+* @statsd.prefix@: The prefix for all stats sent by this app. They will appear in a folder of the same name on graphite.
+* @statsd.host@: The hostname of the statsd server.
+* @statsd.port@: The port for the statsd server.
+
+p(note). If there are any configuration problems (missing or unparseable settings), there will be a warning the first time the module is used but will not cause an error in your app.
 
 h2. Usage
 
-p(note). Explain how to use the module, and describe any routes, controllers, models or views that the module provides.
+To use this module, first add this import:
 
-h2. Tags
+@import play.modules.statsd.Statsd@
 
-p(note). List any tags the module provides, with an @h3.@ heading for each one. Include the tags’ arguments.
+Now you can call it like this:
 
-h2. Commands
+@Statsd.increment("my.stat") // Increment my.stat by 1@
+@Statsd.increment("my.bigger.stat", value = 100) // Increment my.bigger.stat by 100@
+@Statsd.increment("my.frequent.stat", samplingRate = 0.1) // Increment my.frequent.stat 10% of the time@
+@Statsd.timing("my.operation", 100) // my.operation took 100 ms@
+@Statsd.timing("my.frequent.operation", 10, 0.5) // my operation took 50 ms. Send this stat 50% of the time@
 
-p(note). List any commands the module provides, with an @h3.@ heading for each one. Include the commands’ options.
+p(note). The module will log any errors, but will not cause the app to fail.

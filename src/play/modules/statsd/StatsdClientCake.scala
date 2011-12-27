@@ -1,13 +1,33 @@
 package play.modules.statsd
+
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import play.Logger
 
+/**
+ * Configuration trait for the {@link StatsdClient}.
+ *
+ * Provides to the client the prefix for all stats sent to statsd and mechanism
+ * for sending stats over the network.
+ */
 private[statsd] trait StatsdClientCake {
+  protected val statPrefix: String
+  protected val send: Function1[String, Unit]
+}
+
+/**
+ * Real implementation of {@link StatsdClientCake}.
+ *
+ * <p><ul>This implementation:
+ * <li>Reads in values from {@code conf/application.conf}
+ * <li>Sends stats using a {@link DatagramSocket} to statsd server.
+ * <ul>
+ */
+private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
 
   // The property name for whether or not the statsd sending should be enabled.
-  private val StatsdEnabledProperty = "stats.enabled"
+  private val StatsdEnabledProperty = "statsd.enabled"
 
   // The property name for the statsd port.
   private val PortProperty = "statsd.port"
@@ -16,7 +36,7 @@ private[statsd] trait StatsdClientCake {
   private val HostnameProperty = "statsd.host"
 
   // The property name for the application stat prefix.
-  private val StatPrefixProperty = "statsd.stat.prefix"
+  private val StatPrefixProperty = "statsd.prefix"
 
   // The stat prefix used by the client.
   protected val statPrefix = play.configuration(StatPrefixProperty, "statsd")
@@ -43,7 +63,7 @@ private[statsd] trait StatsdClientCake {
       } else {
         Logger.warn("Send will be NOOP because %s is not enabled".format(
           StatsdEnabledProperty))
-          noopSend _
+        noopSend _
       }
 
     } catch {
@@ -71,7 +91,7 @@ private[statsd] trait StatsdClientCake {
   }
 
   /**
-   *
+   * Don't do anything. Used if statsd isn't enabled or on config errors.
    */
   private def noopSend(stat: String) = Unit
 }
