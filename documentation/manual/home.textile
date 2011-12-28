@@ -1,31 +1,28 @@
 h1. statsd
 
-This is a simple statsd module for Play! Framework. It pulls in a configuration from conf/application.conf and provides a singleton object Statsd with methods for counter and timing calls to statsd.
+This is a simple **statsd** module for **Play! Framework**. It pulls in a configuration from @conf/application.conf@ and provides a singleton object @Statsd@ with methods for **counter** and **timing** calls to **statsd**.
 
 h2. Sample application
 
-There is a barebones sample application in sample/sample-statsd/. To run it:
+There is a barebones sample application in @sample/sample-statsd/@. To run it:
 
-@$ play build-module # (you just hit enter at the prompt)@
-@$ cd sample/sample-statsd@
-@$ play run@
+bc.. $ play build-module  # you can just hit enter at the prompt
+$ cd sample/sample-statsd
+$ play run
 
-It should work.
-
-With current settings, it should give a warning about statsd not being configured. Add the properties described below to @conf/application.conf@ to test it further.
+p. With current settings, it should give a warning about statsd not being configured. Add the properties described below to @conf/application.conf@ to test it further.
 
 h2. Getting started
 
 To install:
 
-@$ cd path/to/play/modules@
-@$ git clone git@github.com:dyross/play-statsd.git@
-@$ cd play-statsd@
-@$ pwd # (copy the ouput)@
-@$ play build-module@
-@$ cd path/to/your/app@
-@$ vi conf/application.conf # (and add following line...)@
-@module.statsd=${play.path}/modules/statsd@
+bc.. $ cd path/to/play/modules
+$ git clone git@github.com:dyross/play-statsd.git
+$ cd play-statsd
+$ play build-module  # just hit enter at prompt
+$ cd path/to/your/app
+$ vi conf/application.conf  # and add following line...
+module.statsd=${play.path}/modules/play-statsd
 
 h2. Configuration
 
@@ -46,10 +43,10 @@ To use this module, first add this import:
 
 Now you can call it like this:
 
-@Statsd.increment("my.stat") // Increment my.stat by 1@
-@Statsd.increment("my.bigger.stat", value = 100) // Increment my.bigger.stat by 100@
-@Statsd.increment("my.frequent.stat", samplingRate = 0.1) // Increment my.frequent.stat 10% of the time@
-@Statsd.timing("my.operation", 100) // my.operation took 100 ms@
-@Statsd.timing("my.frequent.operation", 10, 0.5) // my operation took 50 ms. Send this stat 50% of the time@
+bc.. Statsd.increment("my.stat")  // Increment my.stat by 1
+Statsd.increment("my.bigger.stat", value = 100)  // Increment my.bigger.stat by 100
+Statsd.increment("my.frequent.stat", samplingRate = 0.1)  // Increment my.frequent.stat 10% of the time
+Statsd.timing("my.operation", 100)  // my.operation took 100 ms
+Statsd.timing("my.frequent.operation", 10, 0.5)  // my operation took 50 ms. Send this stat 50% of the time
 
-p(note). The module will log any errors, but will not cause the app to fail.
+p(note). Any errors will be logged, but will not cause the app to fail.
