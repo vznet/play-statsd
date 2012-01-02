@@ -19,6 +19,8 @@ import scala.util.Random
  * {@code (samplingRate * 100)%} of the time. This is useful for some stats that
  * occur extremely frequently and therefore put too much load on the statsd
  * server.
+ *
+ * <p>The functionality is exposed to Play Apps using the {@link Statsd} object.
  */
 trait StatsdClient {
   self: StatsdClientCake =>
@@ -28,9 +30,6 @@ trait StatsdClient {
 
   // Suffix for timing stats.
   private val TimingSuffix = "ms"
-
-  // Random instance used for sampled rates.
-  private lazy val random = new Random
 
   /**
    * Increment a given stat key. Optionally give it a value and sampling rate.
@@ -46,7 +45,7 @@ trait StatsdClient {
   /**
    * Timing data for given stat key. Optionally give it a sampling rate.
    *
-   * @param key The stat key to be incremented.
+   * @param key The stat key to be timed.
    * @param value The number of milliseconds the operation took.
    * @param samplingRate The probability for which to increment. Defaults to 1.
    */
@@ -54,14 +53,23 @@ trait StatsdClient {
     safely { maybeSend(statFor(key, millis, TimingSuffix), samplingRate) }
   }
 
+  /**
+   * Time a given operation and send the resulting stat.
+   *
+   * @param key The stat key to be timed.
+   * @param samplingRate The probability for which to increment. Defaults to 1.
+   * @param operation An arbitrary block of code to be timed.
+   */
   def time(key: String, samplingRate: Double = 1.0)(operation: => Unit) {
-    val start = System.currentTimeMillis()
-    operation
-    val finish = System.currentTimeMillis()
-    timing(key, finish - start, samplingRate)
+    safely {
+      val start = now()
+      operation
+      val finish = now()
+      timing(key, finish - start, samplingRate)
+    }
   }
 
-   /*
+  /*
    * ****************************************************************
    *                PRIVATE IMPLEMENTATION DETAILS
    * ****************************************************************
@@ -82,7 +90,7 @@ trait StatsdClient {
    * function {@code (samplingRate * 100)%} of the time.
    */
   private def maybeSend(stat: String, samplingRate: Double) {
-    if (samplingRate >= 1.0 || random.nextFloat() < samplingRate) {
+    if (samplingRate >= 1.0 || nextFloat() < samplingRate) {
       send(stat)
     }
   }

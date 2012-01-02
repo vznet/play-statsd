@@ -4,6 +4,7 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import play.Logger
+import scala.util.Random
 
 /**
  * Configuration trait for the {@link StatsdClient}.
@@ -12,8 +13,17 @@ import play.Logger
  * for sending stats over the network.
  */
 trait StatsdClientCake {
+  // Used as the prefix for all stats.
   protected val statPrefix: String
+
+  // Used to actually send a stat to statsd.
   protected val send: Function1[String, Unit]
+
+  // Used to time an operation.
+  protected def now(): Long
+
+  // Used to determine whether or not a sampled stat should be sent.
+  protected def nextFloat(): Float
 }
 
 /**
@@ -38,13 +48,26 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
   // The property name for the application stat prefix.
   private val StatPrefixProperty = "statsd.prefix"
 
+  // Use scala's Random util for nextFloat.
+  private lazy val random = new Random
+
   // The stat prefix used by the client.
-  protected val statPrefix = play.configuration(StatPrefixProperty, "statsd")
+  override val statPrefix = play.configuration(StatPrefixProperty, "statsd")
+
+  /**
+   * Use {@code System.currentTimeMillis()} to get the current time.
+   */
+  override def now(): Long = System.currentTimeMillis()
+
+  /**
+   * Use scala's {@link Random} util for {@code nextFloat}.
+   */
+  override def nextFloat(): Float = random.nextFloat()
 
   /**
    * Expose a {@code send} function to the client. Is configured with the
    */
-  protected lazy val send: Function1[String, Unit] = {
+  override lazy val send: Function1[String, Unit] = {
     import Sugar._
 
     try {
