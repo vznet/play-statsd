@@ -14,9 +14,12 @@
         <fileset dir="${play.path}/framework">
             <include name="*.jar"/>
         </fileset>
-    	  <fileset dir="${play.path}/modules/scala-0.9.1/lib">
-    	      <include name="*.jar"/>
-    	  </fileset>
+    	
+        <!-- manually added for scala -->
+        <fileset dir="${play.path}/modules/scala-0.9.1/lib">
+    	    <include name="*.jar"/>
+    	</fileset>
+        
         <fileset dir="lib">
             <include name="*.jar"/>
         </fileset>
@@ -44,18 +47,21 @@
     </target>
 
     <target name="compile" depends="check">
-    	
+    
+    	<!-- manually added for scala -->
         <taskdef resource="scala/tools/ant/antlib.xml">
-    	      <classpath refid="project.classpath" />
-    	  </taskdef>
+    	    <classpath refid="project.classpath" />
+    	</taskdef>
+        
         <mkdir dir="tmp/classes" />
         <javac srcdir="src" destdir="tmp/classes" target="1.5" debug="true">
             <classpath refid="project.classpath" />
         </javac>
     	
+        <!-- manually added for scala -->
         <scalac srcdir="src" destdir="tmp/classes" force="changed" unchecked="true">
             <classpath refid="project.classpath" />
-    	  </scalac>
+    	</scalac>
     </target>
 
 </project>

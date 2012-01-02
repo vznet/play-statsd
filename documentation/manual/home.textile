@@ -19,7 +19,7 @@ To install:
 bc.. $ cd path/to/play/modules
 $ git clone git@github.com:dyross/play-statsd.git
 $ cd play-statsd
-$ play build-module  # just hit enter at prompt
+$ play build-module  # just hit enter at prompt (if there is an error about scala, enter "play install scala" and retry)
 $ cd path/to/your/app
 $ vi conf/application.conf  # and add following line...
 module.statsd=${play.path}/modules/play-statsd
