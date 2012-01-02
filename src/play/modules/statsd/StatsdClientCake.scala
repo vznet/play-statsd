@@ -11,7 +11,7 @@ import play.Logger
  * Provides to the client the prefix for all stats sent to statsd and mechanism
  * for sending stats over the network.
  */
-private[statsd] trait StatsdClientCake {
+trait StatsdClientCake {
   protected val statPrefix: String
   protected val send: Function1[String, Unit]
 }

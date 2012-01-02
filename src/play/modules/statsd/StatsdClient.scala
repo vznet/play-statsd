@@ -20,7 +20,7 @@ import scala.util.Random
  * occur extremely frequently and therefore put too much load on the statsd
  * server.
  */
-private[statsd] trait StatsdClient {
+trait StatsdClient {
   self: StatsdClientCake =>
 
   // Suffix for increment stats.
@@ -39,7 +39,7 @@ private[statsd] trait StatsdClient {
    * @param value The amount by which to increment the stat. Defaults to 1.
    * @param samplingRate The probability for which to increment. Defaults to 1.
    */
-  def increment(key: String, value: Int = 1, samplingRate: Double = 1.0) {
+  def increment(key: String, value: Long = 1, samplingRate: Double = 1.0) {
     safely { maybeSend(statFor(key, value, IncrementSuffix), samplingRate) }
   }
 
@@ -50,22 +50,33 @@ private[statsd] trait StatsdClient {
    * @param value The number of milliseconds the operation took.
    * @param samplingRate The probability for which to increment. Defaults to 1.
    */
-  def timing(key: String, millis: Int, samplingRate: Double = 1.0) {
+  def timing(key: String, millis: Long, samplingRate: Double = 1.0) {
     safely { maybeSend(statFor(key, millis, TimingSuffix), samplingRate) }
   }
 
-  /**
+  def time(key: String, samplingRate: Double = 1.0)(operation: => Unit) {
+    val start = System.currentTimeMillis()
+    operation
+    val finish = System.currentTimeMillis()
+    timing(key, finish - start, samplingRate)
+  }
+
+   /*
+   * ****************************************************************
+   *                PRIVATE IMPLEMENTATION DETAILS
+   * ****************************************************************
+   */
+
+  /*
    * Creates the stat string to send to statsd.
-   *
-   * <p>
    * For counters, it provides something like {@code key:value|c}.
    * For timing, it provides something like {@code key:millis|ms}.
    */
-  private def statFor(key: String, value: Int, suffix: String): String = {
+  private def statFor(key: String, value: Long, suffix: String): String = {
     "%s.%s:%s|%s".format(statPrefix, key, value, suffix)
   }
 
-  /**
+  /*
    * Probabilistically calls the {@code send} function. If the sampling rate
    * is 1.0 or greater, we always call send. Use a random number call send
    * function {@code (samplingRate * 100)%} of the time.
@@ -76,7 +87,7 @@ private[statsd] trait StatsdClient {
     }
   }
 
-  /**
+  /*
    * Safety net for operations that shouldn't throw exceptions.
    */
   private def safely(operation: => Unit) {
