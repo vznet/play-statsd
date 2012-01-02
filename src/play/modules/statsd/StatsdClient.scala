@@ -59,14 +59,14 @@ trait StatsdClient {
    * @param key The stat key to be timed.
    * @param samplingRate The probability for which to increment. Defaults to 1.
    * @param operation An arbitrary block of code to be timed.
+   * @return The result of the timed operation.
    */
-  def time(key: String, samplingRate: Double = 1.0)(operation: => Unit) {
-    safely {
-      val start = now()
-      operation
-      val finish = now()
-      timing(key, finish - start, samplingRate)
-    }
+  def time[T](key: String, samplingRate: Double = 1.0)(timed: => T): T = {
+    val start = now()
+    val result = timed
+    val finish = now()
+    timing(key, finish - start, samplingRate)
+    result
   }
 
   /*
