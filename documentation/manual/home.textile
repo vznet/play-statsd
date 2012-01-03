@@ -48,5 +48,8 @@ Statsd.increment("my.bigger.stat", value = 100)  // Increment my.bigger.stat by 
 Statsd.increment("my.frequent.stat", samplingRate = 0.1)  // Increment my.frequent.stat 10% of the time
 Statsd.timing("my.operation", 100)  // my.operation took 100 ms
 Statsd.timing("my.frequent.operation", 10, 0.5)  // my operation took 50 ms. Send this stat 50% of the time
+Statsd.time("my.operation.i.dont.want.to.time.myself") {
+  // do some stuff...
+} // This will get timed automatically.
 
 p(note). Any errors will be logged, but will not cause the app to fail.

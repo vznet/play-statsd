@@ -8,5 +8,8 @@ class SomeJob extends Job {
   override def doJob() {
     Statsd.increment("test1", 50)
     Statsd.timing("test2", 1000)
+    Statsd.time("test3") {
+      // do work
+    }
   }
 }

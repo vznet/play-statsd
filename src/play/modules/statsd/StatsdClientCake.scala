@@ -5,6 +5,7 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import play.Logger
 import scala.util.Random
+import please._
 
 /**
  * Configuration trait for the {@link StatsdClient}.
@@ -68,8 +69,6 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
    * Expose a {@code send} function to the client. Is configured with the
    */
   override lazy val send: Function1[String, Unit] = {
-    import Sugar._
-
     try {
       // Check if Statsd sending is enabled.
       val enabled = booleanConfig(StatsdEnabledProperty)
@@ -92,8 +91,8 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
     } catch {
       // If there is any error configuring the send function, log a warning
       // but don't throw an error. Use a noop function for all sends.
-      case t: Throwable =>
-        Logger.warn(t, "Send will be NOOP because of configuration problem:")
+      case error: Throwable =>
+        please warn error -> "Send will NOOP because of configuration problem."
         noopSend _
     }
   }
@@ -107,9 +106,7 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
       val data = stat.getBytes
       socket.send(new DatagramPacket(data, data.length, host, port))
     } catch {
-      case t: Throwable =>
-        Logger.warn(t, "Exception sending stat [%s] to [%s:%d]".format(
-          stat, host.getHostName(), port))
+      case error: Throwable => please report error
     }
   }
 

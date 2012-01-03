@@ -102,7 +102,7 @@ trait StatsdClient {
     try {
       operation
     } catch {
-      case t: Throwable => Logger.warn(t, "Unhandled throwable sending stat.")
+      case error => please warn error -> "Unhandled throwable sending stat."
     }
   }
 }
