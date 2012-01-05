@@ -1,0 +1,3 @@
+This needs to be kept around because without this directory in github,
+when you clone it, you can't call play build-module without first
+mkdir'ing lib. Annoying.
