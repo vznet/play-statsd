@@ -47,13 +47,19 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
   private val HostnameProperty = "statsd.host"
 
   // The property name for the application stat prefix.
-  private val StatPrefixProperty = "statsd.prefix"
+  private val StatPrefixProperty = "statsd.stat.prefix"
 
   // Use scala's Random util for nextFloat.
   private lazy val random = new Random
 
   // The stat prefix used by the client.
-  override val statPrefix = play.configuration(StatPrefixProperty, "statsd")
+  override val statPrefix = {
+    val default = "statsd"
+    val configured = play.configuration(StatPrefixProperty, default)
+    if (configured == default)
+      Logger.warn("using default prefix: " + default)
+    configured
+  }
 
   /**
    * Use {@code System.currentTimeMillis()} to get the current time.
