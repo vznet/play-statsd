@@ -1,5 +1,6 @@
 package play.modules.statsd.api
 import play.api.Play
+import play.api.Application
 
 /**
  * Sugar to make using Java API for Play nicer.
@@ -12,7 +13,8 @@ object please {
   }
 
   private[api] def booleanConfig(name: String): Boolean = {
-    Play.current.configuration.getBoolean(name).getOrElse(false)
+    // Use maybe application, so when we check if statsd is enabled, if there's no current application, no worries
+    Play.maybeApplication.flatMap { _.configuration.getBoolean(name) } getOrElse false
   }
 
   private[api] def intConfig(name: String): Int = {

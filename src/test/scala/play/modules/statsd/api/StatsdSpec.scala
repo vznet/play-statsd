@@ -54,7 +54,13 @@ case class StatsdSpec() extends Specification {
         Statsd.time("test", 1.0) { "blah" } mustEqual "blah"
       }
     }
-
+    "do nothing if there's no running application" in new Setup {
+      // A separate singleton, that ensures it's not configured with the configuration that was available during the
+      // other tests
+      object TestStatsd extends StatsdClient with RealStatsdClientCake
+      TestStatsd.increment("blah")
+      verifyNothingReceived()
+    }
   }
 
   trait Setup extends BeforeAfter {
@@ -102,6 +108,4 @@ case class StatsdSpec() extends Specification {
       mockStatsd.close()
     }
   }
-
-
 }

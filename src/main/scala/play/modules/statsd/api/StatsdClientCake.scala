@@ -53,7 +53,7 @@ private[api] trait RealStatsdClientCake extends StatsdClientCake {
 
   // The stat prefix used by the client.
   override val statPrefix = {
-    Play.current.configuration.getString(StatPrefixProperty) getOrElse {
+    Play.maybeApplication flatMap { _.configuration.getString(StatPrefixProperty) } getOrElse {
       Logger.warn("No stat prefix configured, using default of statsd")
       "statsd"
     }
