@@ -1,28 +1,15 @@
 h1. statsd
 
-This is a simple **statsd** module for **Play! Framework 2.0**. It pulls in a configuration from @conf/application.conf@ and provides a singleton object @Statsd@ with methods for **counter** and **timing** calls to **statsd**.
-
-h2. Sample application
-
-There is a barebones sample application in @sample/sample-statsd/@. To run it:
-
-bc.. $ play build-module  # you can just hit enter at the prompt
-$ cd sample/sample-statsd
-$ play run
-
-p. With current settings, it should give a warning about statsd not being configured. Add the properties described below to @conf/application.conf@ to test it further.
+This is a simple **statsd** module for **Play! Framework 2.0**. It pulls in configuration from @conf/application.conf@
+and provides a singleton object @Statsd@ with methods for **counter** and **timing** calls to **statsd**.  It provides
+both a Scala and Java interface.  Similar to the Play 2.0 convention, the Scala interface is called
+@play.modules.statsd.api.Statsd@, and the Java interface is @play.modules.statsd.Statsd@.
 
 h2. Getting started
 
-To install:
+To install, add @"net.vz.play" %% "play-statsd" % "1.0.0-rc.1"@ to your dependencies, for example:
 
-bc.. $ cd path/to/play/modules
-$ git clone git@github.com:dyross/play-statsd.git
-$ cd play-statsd
-$ play build-module  # just hit enter at prompt (if there is an error about scala, enter "play install scala" and retry)
-$ cd path/to/your/app
-$ vi conf/application.conf  # and add following line...
-module.statsd=${play.path}/modules/play-statsd
+bc.. val appDendencies = Seq(@"net.vz.play" %% "play-statsd" % "1.0.0-rc.1")
 
 h2. Configuration
 
@@ -35,11 +22,11 @@ The following are configuration flags that belong in @conf/application.conf@:
 
 p(note). If there are any configuration problems (missing or unparseable settings), there will be a warning the first time the module is used but will not cause an error in your app.
 
-h2. Usage
+h2. Scala Usage
 
 To use this module, first add this import:
 
-@import play.modules.statsd.Statsd@
+@import play.modules.statsd.api.Statsd@
 
 Now you can call it like this:
 
@@ -53,3 +40,24 @@ Statsd.time("my.operation.i.dont.want.to.time.myself") {
 } // This will get timed automatically.
 
 p(note). Any errors will be logged, but will not cause the app to fail.
+
+h2. Java Usage
+
+To use this module, first add this import:
+
+@import play.modules.statsd.Statsd;@
+
+Now you can call it like this:
+
+bc.. Statsd.increment("my.stat");  // Increment my.stat by 1
+Statsd.increment("my.bigger.stat", 100);  // Increment my.bigger.stat by 100
+Statsd.increment("my.frequent.stat", 0.1);  // Increment my.frequent.stat 10% of the time
+Statsd.timing("my.operation", 100);  // my.operation took 100 ms
+Statsd.timing("my.frequent.operation", 10, 0.5);  // my operation took 50 ms. Send this stat 50% of the time
+String result = Statsd.time("my.operation.i.dont.want.to.time.myself", new F.Function0<String>() {
+  public String apply() {
+    return "some result";
+  }}); // This will get timed automatically.
+
+p(note). Any errors will be logged, but will not cause the app to fail.
+
