@@ -1,14 +1,14 @@
-package play.modules.statsd
+package play.modules.statsd.api
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import play.Logger
 import scala.util.Random
-import please._
+import play.api.Play
 
 /**
- * Configuration trait for the {@link StatsdClient}.
+ * Configuration trait for the [[play.modules.statsd.api.StatsdClient]].
  *
  * Provides to the client the prefix for all stats sent to statsd and mechanism
  * for sending stats over the network.
@@ -28,14 +28,13 @@ trait StatsdClientCake {
 }
 
 /**
- * Real implementation of {@link StatsdClientCake}.
+ * Real implementation of [[play.modules.statsd.api.StatsdClientCake]].
  *
- * <p><ul>This implementation:
- * <li>Reads in values from {@code conf/application.conf}
- * <li>Sends stats using a {@link DatagramSocket} to statsd server.
- * <ul>
+ * This implementation:
+ * - Reads in values from `conf/application.conf`
+ * - Sends stats using a `DatagramSocket` to statsd server.
  */
-private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
+private[api] trait RealStatsdClientCake extends StatsdClientCake {
 
   // The property name for whether or not the statsd sending should be enabled.
   private val StatsdEnabledProperty = "statsd.enabled"
@@ -54,36 +53,37 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
 
   // The stat prefix used by the client.
   override val statPrefix = {
-    val default = "statsd"
-    val configured = play.configuration(StatPrefixProperty, default)
-    if (configured == default)
-      Logger.warn("using default prefix: " + default)
-    configured
+    Play.current.configuration.getString(StatPrefixProperty) getOrElse {
+      Logger.warn("No stat prefix configured, using default of statsd")
+      "statsd"
+    }
   }
 
   /**
-   * Use {@code System.currentTimeMillis()} to get the current time.
+   * Use `System.currentTimeMillis()` to get the current time.
    */
   override def now(): Long = System.currentTimeMillis()
 
   /**
-   * Use scala's {@link Random} util for {@code nextFloat}.
+   * Use scala's [[scala.util.Random]] util for `nextFloat`.
    */
   override def nextFloat(): Float = random.nextFloat()
 
   /**
-   * Expose a {@code send} function to the client. Is configured with the
+   * Expose a `send` function to the client. It is configured with the hostname and port.
+   *
+   * If statsd isn't enabled, it will be a noop function.
    */
   override lazy val send: Function1[String, Unit] = {
     try {
       // Check if Statsd sending is enabled.
-      val enabled = booleanConfig(StatsdEnabledProperty)
+      val enabled = please.booleanConfig(StatsdEnabledProperty)
       if (enabled) {
         // Initialize the socket, host, and port to be used to send the data.
         val socket = new DatagramSocket
-        val hostname = config(HostnameProperty)
+        val hostname = please.config(HostnameProperty)
         val host = InetAddress.getByName(hostname)
-        val port = intConfig(PortProperty)
+        val port = please.intConfig(PortProperty)
 
         // Return the real send function, partially applied with the
         // socket, host, and port so the client only has to call "send(stat)".
@@ -98,13 +98,13 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
       // If there is any error configuring the send function, log a warning
       // but don't throw an error. Use a noop function for all sends.
       case error: Throwable =>
-        please warn error -> "Send will NOOP because of configuration problem."
+        Logger.warn("Send will NOOP because of configuration problem.", error)
         noopSend _
     }
   }
 
   /**
-   * Send the stat in a {@link DatagramPacket} to statsd.
+   * Send the stat in a [[java.net.DatagramPacket]] to statsd.
    */
   private def socketSend(
     socket: DatagramSocket, host: InetAddress, port: Int)(stat: String) {
@@ -112,7 +112,7 @@ private[statsd] trait RealStatsdClientCake extends StatsdClientCake {
       val data = stat.getBytes
       socket.send(new DatagramPacket(data, data.length, host, port))
     } catch {
-      case error: Throwable => please report error
+      case error: Throwable => Logger.error("", error)
     }
   }
 

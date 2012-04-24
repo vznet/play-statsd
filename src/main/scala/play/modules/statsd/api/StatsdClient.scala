@@ -1,26 +1,23 @@
-package play.modules.statsd
+package play.modules.statsd.api
 
-import java.net.DatagramPacket
 import play.Logger
-import scala.util.Random
 
 /**
  * Trait defining the statsd interface. It defines the two stats calls in
- * statsd: {@code increment} and {@code timing}. It must be instantiated with
- * {@link StatsdClientCake} which handles the sending of stats over the network.
+ * statsd: `increment` and `timing`. It must be instantiated with
+ * [[play.modules.statsd.api.StatsdClientCake]] which handles the sending of stats over the network.
  *
- * <p><ul>Two stats-related function are supported.
- * <li><b>increment</b>: Increment a given stat key.
- * <li><b>timing</b>: Sending timing info for a given operation key.
- * </ul>
+ * Two stats-related function are supported:
+ * - `increment`: Increment a given stat key.
+ * - `timing`: Sending timing info for a given operation key.
  *
- * <p>For both, an optional {@code samplingRate} parameter can be provided.
+ * For both, an optional `samplingRate` parameter can be provided.
  * For parameters between 0 and 1.0, the client will send the stat
- * {@code (samplingRate * 100)%} of the time. This is useful for some stats that
+ * `samplingRate * 100` of the time. This is useful for some stats that
  * occur extremely frequently and therefore put too much load on the statsd
  * server.
  *
- * <p>The functionality is exposed to Play Apps using the {@link Statsd} object.
+ * The functionality is exposed to Play Apps using the [[play.modules.statsd.Statsd]] object.
  */
 trait StatsdClient {
   self: StatsdClientCake =>
@@ -39,18 +36,18 @@ trait StatsdClient {
    * @param samplingRate The probability for which to increment. Defaults to 1.
    */
   def increment(key: String, value: Long = 1, samplingRate: Double = 1.0) {
-    safely { maybeSend(statFor(key, value, IncrementSuffix), samplingRate) }
+    safely { maybeSend(statFor(key, value, IncrementSuffix, samplingRate), samplingRate) }
   }
 
   /**
    * Timing data for given stat key. Optionally give it a sampling rate.
    *
    * @param key The stat key to be timed.
-   * @param value The number of milliseconds the operation took.
+   * @param millis The number of milliseconds the operation took.
    * @param samplingRate The probability for which to increment. Defaults to 1.
    */
   def timing(key: String, millis: Long, samplingRate: Double = 1.0) {
-    safely { maybeSend(statFor(key, millis, TimingSuffix), samplingRate) }
+    safely { maybeSend(statFor(key, millis, TimingSuffix, samplingRate), samplingRate) }
   }
 
   /**
@@ -58,7 +55,7 @@ trait StatsdClient {
    *
    * @param key The stat key to be timed.
    * @param samplingRate The probability for which to increment. Defaults to 1.
-   * @param operation An arbitrary block of code to be timed.
+   * @param timed An arbitrary block of code to be timed.
    * @return The result of the timed operation.
    */
   def time[T](key: String, samplingRate: Double = 1.0)(timed: => T): T = {
@@ -79,9 +76,14 @@ trait StatsdClient {
    * Creates the stat string to send to statsd.
    * For counters, it provides something like {@code key:value|c}.
    * For timing, it provides something like {@code key:millis|ms}.
+   * If sampling rate is less than 1, it provides something like {@code key:value|type|@rate}
    */
-  private def statFor(key: String, value: Long, suffix: String): String = {
-    "%s.%s:%s|%s".format(statPrefix, key, value, suffix)
+  private def statFor(key: String, value: Long, suffix: String, samplingRate: Double): String = {
+    samplingRate match {
+      case x if x >= 1.0 => "%s.%s:%s|%s".format(statPrefix, key, value, suffix)
+      case _ => "%s.%s:%s|%s|@%f".format(statPrefix, key, value, suffix, samplingRate)
+    }
+
   }
 
   /*
@@ -102,13 +104,13 @@ trait StatsdClient {
     try {
       operation
     } catch {
-      case error => please warn error -> "Unhandled throwable sending stat."
+      case error => Logger.warn("Unhandled throwable sending stat.", error)
     }
   }
 }
 
 /**
- * Wrap the {@link StatsdClient} trait configured with
- * {@link RealStatsdClientCake} in an object to make it available to the app.
+ * Wrap the [[play.modules.statsd.api.StatsdClient]] trait configured with
+ * [[play.modules.statsd.api.RealStatsdClientCake]] in an object to make it available to the app.
  */
 object Statsd extends StatsdClient with RealStatsdClientCake
