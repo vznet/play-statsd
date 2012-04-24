@@ -7,9 +7,9 @@ both a Scala and Java interface.  Similar to the Play 2.0 convention, the Scala 
 
 h2. Getting started
 
-To install, add @"net.vz.play" %% "play-statsd" % "1.0.0-rc.1"@ to your dependencies, for example:
+To install, add @"net.vz.play.statsd" %% "play-statsd" % "1.0.0-rc.1"@ to your dependencies, for example:
 
-bc.. val appDendencies = Seq(@"net.vz.play" %% "play-statsd" % "1.0.0-rc.1")
+bc.. val appDendencies = Seq(@"net.vz.play.statsd" %% "play-statsd" % "1.0.0-rc.1")
 
 h2. Configuration
 
