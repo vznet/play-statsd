@@ -1,5 +1,0 @@
-self: play -> statsd 0.1
-
-require:
-    - play
-    - play -> scala 0.9.1

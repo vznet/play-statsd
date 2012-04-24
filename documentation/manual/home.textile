@@ -1,6 +1,6 @@
 h1. statsd
 
-This is a simple **statsd** module for **Play! Framework**. It pulls in a configuration from @conf/application.conf@ and provides a singleton object @Statsd@ with methods for **counter** and **timing** calls to **statsd**.
+This is a simple **statsd** module for **Play! Framework 2.0**. It pulls in a configuration from @conf/application.conf@ and provides a singleton object @Statsd@ with methods for **counter** and **timing** calls to **statsd**.
 
 h2. Sample application
 
