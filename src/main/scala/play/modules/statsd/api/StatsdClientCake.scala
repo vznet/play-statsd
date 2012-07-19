@@ -59,7 +59,7 @@ private[api] trait RealStatsdClientCake extends StatsdClientCake {
     Play.maybeApplication flatMap { app =>
       app.configuration.getString(StatPrefixProperty) map { prefix =>
         if(app.configuration.getBoolean(StatHostnameEnabledProperty).getOrElse(false)) {
-           "%s.%s".format(prefix, InetAddress.getLocalHost.getHostName)
+           "%s.%s".format(prefix, InetAddress.getLocalHost.getHostName.split('.').head)
         } else {
           prefix
         }
