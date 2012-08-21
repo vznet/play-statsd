@@ -13,7 +13,7 @@ scalaVersion := "2.9.2"
 resolvers ++= Seq(
     DefaultMavenRepository,
     Resolver.url("Play", url("http://download.playframework.org/ivy-releases/"))(Resolver.ivyStylePatterns),
-    Resolver.url("GitHub", url("https://github.com/fooblahblah/maven-repo/raw/master/releases"))(Resolver.ivyStylePatterns),
+    Resolver.url("GitHub", url("https://github.com/fooblahblah/maven-repo.git"))(Resolver.ivyStylePatterns),
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "Typesafe Other Repository" at "http://repo.typesafe.com/typesafe/repo/",
     Resolver.url("sbt-plugin-releases", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
