@@ -15,20 +15,21 @@ resolvers ++= Seq(
     Resolver.url("Play", url("http://download.playframework.org/ivy-releases/"))(Resolver.ivyStylePatterns),
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
     "Typesafe Other Repository" at "http://repo.typesafe.com/typesafe/repo/",
-    Resolver.url("sbt-plugin-releases", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
+    Resolver.url("sbt-plugin-releases", url("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
+    Resolver.url("Play-custom", url("https://github.com/fooblahblah/maven-repo/raw/master/releases"))(Resolver.ivyStylePatterns)
 )
 
 // Dependencies
 
 libraryDependencies ++= Seq(
-    "play" %% "play" % "2.0.3"
+    "play" %% "play" % "2.0.3.1"
 )
 
 // Test dependencies
 
 libraryDependencies ++= Seq(
     "org.specs2" %% "specs2" % "1.9" % "test",
-    "play" %% "play-test" % "2.0.3" % "test"
+    "play" %% "play-test" % "2.0.3.1" % "test"
 )
 
 parallelExecution in Test := false
