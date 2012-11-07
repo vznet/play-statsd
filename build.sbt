@@ -21,14 +21,14 @@ resolvers ++= Seq(
 // Dependencies
 
 libraryDependencies ++= Seq(
-    "play" %% "play" % "2.0"
+    "play" %% "play" % "2.0.3"
 )
 
 // Test dependencies
 
 libraryDependencies ++= Seq(
     "org.specs2" %% "specs2" % "1.9" % "test",
-    "play" %% "play-test" % "2.0" % "test"
+    "play" %% "play-test" % "2.0.3" % "test"
 )
 
 parallelExecution in Test := false
