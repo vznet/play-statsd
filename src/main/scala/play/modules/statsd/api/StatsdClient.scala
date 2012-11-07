@@ -28,6 +28,9 @@ trait StatsdClient {
   // Suffix for timing stats.
   private val TimingSuffix = "ms"
 
+  // Suffix for gauge stats.
+  private val GaugeSuffix = "g"
+
   /**
    * Increment a given stat key. Optionally give it a value and sampling rate.
    *
@@ -66,6 +69,16 @@ trait StatsdClient {
     result
   }
 
+  /**
+   * Record the given value.
+   *
+   * @param key The stat key to update.
+   * @param value The value to record for the stat.
+   */
+  def gauge(key: String, value: Long) {
+    safely { maybeSend(statFor(key, value, GaugeSuffix, 1.0), 1.0) }
+  }
+
   /*
    * ****************************************************************
    *                PRIVATE IMPLEMENTATION DETAILS
@@ -83,7 +96,6 @@ trait StatsdClient {
       case x if x >= 1.0 => "%s.%s:%s|%s".format(statPrefix, key, value, suffix)
       case _ => "%s.%s:%s|%s|@%f".format(statPrefix, key, value, suffix, samplingRate)
     }
-
   }
 
   /*
