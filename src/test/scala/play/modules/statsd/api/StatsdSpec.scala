@@ -8,6 +8,12 @@ import org.specs2.mutable.{Specification, BeforeAfter}
 case class StatsdSpec() extends Specification {
   sequential
   "Statsd" should {
+    "send gauge value" in new Setup {
+      running(fakeApp) {
+        Statsd.gauge("test", 42)
+        receive() mustEqual "statsd.test:42|g"
+      }
+    }
     "send increment by one message" in new Setup {
       running(fakeApp) {
         Statsd.increment("test")

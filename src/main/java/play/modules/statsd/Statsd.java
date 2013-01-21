@@ -102,6 +102,16 @@ public class Statsd {
         });
     }
 
+    /**
+     * Record the given value.
+     *
+     * @param key The stat key to update.
+     * @param value The value to record for the stat.
+     */
+    public static void gauge(String key, long value) {
+        client().gauge(key, value);
+    }
+
     private static StatsdClient client() {
         return Statsd$.MODULE$;
     }

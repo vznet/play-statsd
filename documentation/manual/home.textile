@@ -16,7 +16,7 @@ h2. Configuration
 The following are configuration flags that belong in @conf/application.conf@:
 
 * @statsd.enabled@: Should be @true@ to use this module. Can be @false@ for testing.
-* @statsd.prefix@: The prefix for all stats sent by this app. They will appear in a folder of the same name on graphite.
+* @statsd.stat.prefix@: The prefix for all stats sent by this app. They will appear in a folder of the same name on graphite.
 * @statsd.host@: The hostname of the statsd server.
 * @statsd.port@: The port for the statsd server.
 
@@ -38,6 +38,7 @@ Statsd.timing("my.frequent.operation", 10, 0.5)  // my operation took 50 ms. Sen
 Statsd.time("my.operation.i.dont.want.to.time.myself") {
   // do some stuff...
 } // This will get timed automatically.
+Statsd.gauge("my.value", 42)  // Record 42 for my.value
 
 p(note). Any errors will be logged, but will not cause the app to fail.
 
@@ -58,6 +59,6 @@ String result = Statsd.time("my.operation.i.dont.want.to.time.myself", new F.Fun
   public String apply() {
     return "some result";
   }}); // This will get timed automatically.
+Statsd.gauge("my.value", 42L)  // Record 42 for my.value
 
 p(note). Any errors will be logged, but will not cause the app to fail.
-
